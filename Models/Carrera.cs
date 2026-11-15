@@ -15,7 +15,9 @@ namespace GestionFacultadesCarrerasIdentity.Models
         [StringLength(10, ErrorMessage = "El campo {0} no puede superar los {1} caracteres.")]
         [Display(Name = "Código")]
         public string Codigo { get; set; } = string.Empty;
-
+        /// <summary>
+        /// Duración de la carrera validada en un rango de 1 a 14 semestres.
+        /// </summary>
         [Required(ErrorMessage = "La duración en semestres es obligatoria.")]
         [Range(1, 14, ErrorMessage = "La duración debe estar entre {1} y {2} semestres.")]
         [Display(Name = "Duración (Semestres)")]
