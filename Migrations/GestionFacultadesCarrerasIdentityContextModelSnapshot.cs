@@ -45,6 +45,28 @@ namespace GestionFacultadesCarrerasIdentity.Migrations
 
                     b.ToTable("Carrera");
                 });
+
+            modelBuilder.Entity("GestionFacultadesCarrerasIdentity.Models.Facultad", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Decano")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Facultad");
+                });
 #pragma warning restore 612, 618
         }
     }
