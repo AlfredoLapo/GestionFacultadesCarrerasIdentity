@@ -13,6 +13,7 @@ namespace GestionFacultadesCarrerasIdentity.Models
         [StringLength(100)]
         public string? Decano { get; set; }
 
+        public ICollection<Carrera>? Carreras { get; set; }
     }
 }
 
