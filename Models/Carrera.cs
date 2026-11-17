@@ -22,5 +22,11 @@ namespace GestionFacultadesCarrerasIdentity.Models
         [Range(1, 14, ErrorMessage = "La duración debe estar entre {1} y {2} semestres.")]
         [Display(Name = "Duración (Semestres)")]
         public int? DuracionSemestres { get; set; }
+
+        [Required(ErrorMessage = "Debe seleccionar una facultad.")]
+        [Display(Name = "Facultad")]
+        public int FacultadId { get; set; }
+
+        public Facultad? Facultad { get; set; }
     }
 }
