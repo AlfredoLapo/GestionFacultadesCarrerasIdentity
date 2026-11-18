@@ -1,5 +1,5 @@
-
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using GestionFacultadesCarrerasIdentity.Models;
 
@@ -13,9 +13,10 @@ public class CarrerasController : Controller
     }
 
     // GET: CARRERAS
-    public async Task<IActionResult> Index()    
+    public async Task<IActionResult> Index()
     {
-        return View(await _context.Carrera.ToListAsync());
+        var carreras = _context.Carrera.Include(c => c.Facultad);
+        return View(await carreras.ToListAsync());
     }
 
     // GET: CARRERAS/Details/5
@@ -27,6 +28,7 @@ public class CarrerasController : Controller
         }
 
         var carrera = await _context.Carrera
+            .Include(c => c.Facultad)
             .FirstOrDefaultAsync(m => m.Id == id);
         if (carrera == null)
         {
@@ -39,15 +41,14 @@ public class CarrerasController : Controller
     // GET: CARRERAS/Create
     public IActionResult Create()
     {
+        ViewData["FacultadId"] = new SelectList(_context.Facultad, "Id", "Nombre");
         return View();
     }
 
     // POST: CARRERAS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Nombre,Codigo,DuracionSemestres")] Carrera carrera)
+    public async Task<IActionResult> Create([Bind("Id,Nombre,Codigo,DuracionSemestres,FacultadId")] Carrera carrera)
     {
         if (ModelState.IsValid)
         {
@@ -55,6 +56,7 @@ public class CarrerasController : Controller
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
+        ViewData["FacultadId"] = new SelectList(_context.Facultad, "Id", "Nombre", carrera.FacultadId);
         return View(carrera);
     }
 
@@ -71,15 +73,14 @@ public class CarrerasController : Controller
         {
             return NotFound();
         }
+        ViewData["FacultadId"] = new SelectList(_context.Facultad, "Id", "Nombre", carrera.FacultadId);
         return View(carrera);
     }
 
     // POST: CARRERAS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("Id,Nombre,Codigo,DuracionSemestres")] Carrera carrera)
+    public async Task<IActionResult> Edit(int? id, [Bind("Id,Nombre,Codigo,DuracionSemestres,FacultadId")] Carrera carrera)
     {
         if (id != carrera.Id)
         {
@@ -106,6 +107,7 @@ public class CarrerasController : Controller
             }
             return RedirectToAction(nameof(Index));
         }
+        ViewData["FacultadId"] = new SelectList(_context.Facultad, "Id", "Nombre", carrera.FacultadId);
         return View(carrera);
     }
 
@@ -118,6 +120,7 @@ public class CarrerasController : Controller
         }
 
         var carrera = await _context.Carrera
+            .Include(c => c.Facultad)
             .FirstOrDefaultAsync(m => m.Id == id);
         if (carrera == null)
         {
