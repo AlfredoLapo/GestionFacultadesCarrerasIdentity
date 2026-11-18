@@ -36,12 +36,17 @@ namespace GestionFacultadesCarrerasIdentity.Migrations
                     b.Property<int>("DuracionSemestres")
                         .HasColumnType("int");
 
+                    b.Property<int>("FacultadId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FacultadId");
 
                     b.ToTable("Carrera");
                 });
@@ -66,6 +71,22 @@ namespace GestionFacultadesCarrerasIdentity.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Facultad");
+                });
+
+            modelBuilder.Entity("GestionFacultadesCarrerasIdentity.Models.Carrera", b =>
+                {
+                    b.HasOne("GestionFacultadesCarrerasIdentity.Models.Facultad", "Facultad")
+                        .WithMany("Carreras")
+                        .HasForeignKey("FacultadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Facultad");
+                });
+
+            modelBuilder.Entity("GestionFacultadesCarrerasIdentity.Models.Facultad", b =>
+                {
+                    b.Navigation("Carreras");
                 });
 #pragma warning restore 612, 618
         }
