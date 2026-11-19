@@ -44,6 +44,8 @@ builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
+
+// COMMIT 3: Crear roles y usuarios de prueba automáticamente
 using (var scope = app.Services.CreateScope())
 {
     var servicios = scope.ServiceProvider;
@@ -54,13 +56,15 @@ using (var scope = app.Services.CreateScope())
     var roleManager =
         servicios.GetRequiredService<RoleManager<IdentityRole>>();
 
-    // Crear los roles si todavía no existen
-    foreach (var nombreRol in new[] { "Administrador", "Usuario" })
+    // Crear roles
+    string[] roles = { "Coordinador", "Aspirante" };
+
+    foreach (var rol in roles)
     {
-        if (!await roleManager.RoleExistsAsync(nombreRol))
+        if (!await roleManager.RoleExistsAsync(rol))
         {
             var resultado = await roleManager.CreateAsync(
-                new IdentityRole(nombreRol));
+                new IdentityRole(rol));
 
             if (!resultado.Succeeded)
                 throw new Exception(string.Join("; ",
@@ -68,22 +72,58 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    // Asignar Administrador al usuario registrado
-    var usuario = await userManager.FindByEmailAsync(
-        "Usuario3@example.com");
-
-    if (usuario == null)
-        throw new Exception(
-            "No se encontró Usuario3@example.com en la base de datos.");
-
-    if (!await userManager.IsInRoleAsync(usuario, "Administrador"))
+    // Usuarios de prueba
+    var usuariosPrueba = new[]
     {
-        var resultado = await userManager.AddToRoleAsync(
-            usuario, "Administrador");
+        new
+        {
+            Email = "coordinador@example.com",
+            Rol = "Coordinador"
+        },
+        new
+        {
+            Email = "aspirante@example.com",
+            Rol = "Aspirante"
+        }
+    };
 
-        if (!resultado.Succeeded)
-            throw new Exception(string.Join("; ",
-                resultado.Errors.Select(e => e.Description)));
+    // Contraseña de prueba local; no subirla a GitHub
+    var clavePrueba = builder.Configuration["SeedUsers:Password"];
+
+    if (string.IsNullOrWhiteSpace(clavePrueba))
+        throw new InvalidOperationException(
+            "Configure SeedUsers:Password en User Secrets.");
+
+    foreach (var datos in usuariosPrueba)
+    {
+        var usuario = await userManager.FindByEmailAsync(datos.Email);
+
+        if (usuario == null)
+        {
+            usuario = new ApplicationUser
+            {
+                UserName = datos.Email,
+                Email = datos.Email,
+                EmailConfirmed = true
+            };
+
+            var resultado = await userManager.CreateAsync(
+                usuario, clavePrueba);
+
+            if (!resultado.Succeeded)
+                throw new Exception(string.Join("; ",
+                    resultado.Errors.Select(e => e.Description)));
+        }
+
+        if (!await userManager.IsInRoleAsync(usuario, datos.Rol))
+        {
+            var resultado = await userManager.AddToRoleAsync(
+                usuario, datos.Rol);
+
+            if (!resultado.Succeeded)
+                throw new Exception(string.Join("; ",
+                    resultado.Errors.Select(e => e.Description)));
+        }
     }
 }
 
