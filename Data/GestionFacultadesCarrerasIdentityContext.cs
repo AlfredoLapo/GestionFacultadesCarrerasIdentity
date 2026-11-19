@@ -1,7 +1,14 @@
-using Microsoft.EntityFrameworkCore;
 
-public class GestionFacultadesCarrerasIdentityContext(DbContextOptions<GestionFacultadesCarrerasIdentityContext> options) : DbContext(options)
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using GestionFacultadesCarrerasIdentity.Models;
+using ApplicationUser = GestionFacultadesCarrerasIdentity.Data.ApplicationUser;
+
+public class GestionFacultadesCarrerasIdentityContext(
+    DbContextOptions<GestionFacultadesCarrerasIdentityContext> options
+) : IdentityDbContext<ApplicationUser>(options)
 {
-    public DbSet<GestionFacultadesCarrerasIdentity.Models.Carrera> Carrera { get; set; } = default!;
-    public DbSet<GestionFacultadesCarrerasIdentity.Models.Facultad> Facultad { get; set; } = default!;
+    public DbSet<Carrera> Carrera { get; set; } = default!;
+
+    public DbSet<Facultad> Facultad { get; set; } = default!;
 }
