@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using GestionFacultadesCarrerasIdentity.Models;
 
@@ -7,18 +8,23 @@ public class FacultadesController : Controller
 {
     private readonly GestionFacultadesCarrerasIdentityContext _context;
 
-    public FacultadesController(GestionFacultadesCarrerasIdentityContext context)
+    public FacultadesController(
+        GestionFacultadesCarrerasIdentityContext context)
     {
         _context = context;
     }
 
-    // GET: FACULTADS
-    public async Task<IActionResult> Index()    
+    // GET: Facultades
+    // Todos pueden consultar las facultades
+    [AllowAnonymous]
+    public async Task<IActionResult> Index()
     {
         return View(await _context.Facultad.ToListAsync());
     }
 
-    // GET: FACULTADS/Details/5
+    // GET: Facultades/Details/5
+    // Todos pueden consultar los detalles
+    [AllowAnonymous]
     public async Task<IActionResult> Details(int? id)
     {
         if (id == null)
@@ -28,6 +34,7 @@ public class FacultadesController : Controller
 
         var facultad = await _context.Facultad
             .FirstOrDefaultAsync(m => m.Id == id);
+
         if (facultad == null)
         {
             return NotFound();
@@ -36,29 +43,35 @@ public class FacultadesController : Controller
         return View(facultad);
     }
 
-    // GET: FACULTADS/Create
+    // GET: Facultades/Create
+    // Solo el Coordinador puede crear facultades
+    [Authorize(Roles = "Coordinador")]
     public IActionResult Create()
     {
         return View();
     }
 
-    // POST: FACULTADS/Create
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    // POST: Facultades/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Id,Nombre,Decano")] Facultad facultad)
+    [Authorize(Roles = "Coordinador")]
+    public async Task<IActionResult> Create(
+        [Bind("Id,Nombre,Decano")] Facultad facultad)
     {
         if (ModelState.IsValid)
         {
             _context.Add(facultad);
             await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
+
         return View(facultad);
     }
 
-    // GET: FACULTADS/Edit/5
+    // GET: Facultades/Edit/5
+    // Solo el Coordinador puede editar facultades
+    [Authorize(Roles = "Coordinador")]
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -67,19 +80,22 @@ public class FacultadesController : Controller
         }
 
         var facultad = await _context.Facultad.FindAsync(id);
+
         if (facultad == null)
         {
             return NotFound();
         }
+
         return View(facultad);
     }
 
-    // POST: FACULTADS/Edit/5
-    // To protect from overposting attacks, enable the specific properties you want to bind to.
-    // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+    // POST: Facultades/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int? id, [Bind("Id,Nombre,Decano")] Facultad facultad)
+    [Authorize(Roles = "Coordinador")]
+    public async Task<IActionResult> Edit(
+        int? id,
+        [Bind("Id,Nombre,Decano")] Facultad facultad)
     {
         if (id != facultad.Id)
         {
@@ -99,17 +115,19 @@ public class FacultadesController : Controller
                 {
                     return NotFound();
                 }
-                else
-                {
-                    throw;
-                }
+
+                throw;
             }
+
             return RedirectToAction(nameof(Index));
         }
+
         return View(facultad);
     }
 
-    // GET: FACULTADS/Delete/5
+    // GET: Facultades/Delete/5
+    // Solo el Coordinador puede eliminar facultades
+    [Authorize(Roles = "Coordinador")]
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null)
@@ -119,6 +137,7 @@ public class FacultadesController : Controller
 
         var facultad = await _context.Facultad
             .FirstOrDefaultAsync(m => m.Id == id);
+
         if (facultad == null)
         {
             return NotFound();
@@ -127,21 +146,24 @@ public class FacultadesController : Controller
         return View(facultad);
     }
 
-    // POST: FACULTADS/Delete/5
+    // POST: Facultades/Delete/5
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Coordinador")]
     public async Task<IActionResult> DeleteConfirmed(int? id)
     {
         var facultad = await _context.Facultad.FindAsync(id);
+
         if (facultad != null)
         {
             _context.Facultad.Remove(facultad);
+            await _context.SaveChangesAsync();
         }
 
-        await _context.SaveChangesAsync();
         return RedirectToAction(nameof(Index));
     }
 
+    // Verificar si existe la facultad
     private bool FacultadExists(int? id)
     {
         return _context.Facultad.Any(e => e.Id == id);
